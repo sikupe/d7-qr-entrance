@@ -1,16 +1,17 @@
 # qr_entrance
 
-QR code for :Domus7 entrance
+QR code for :Domus7 entrance and wifi configuration.
 
-## Getting Started
+This app enables easy access to the entrance QR codes of :Domus7 and also simplifies the configuration of the `d7-airlan` wifi.
 
-This project is a starting point for a Flutter application.
+This app is only developed and tested for Android
 
-A few resources to get you started if this is your first Flutter project:
+## Building
+You can build the app for Android:
+1. `flutter clean`
+2. `flutter pub get`
+3. `flutter pub run flutter_launcher_icons`
+4. `flutter build apk`
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Install
+First you need to build the app. Afterwards you can install it on Android devices connect via ADB with `flutter install --release`.
