@@ -1,39 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:qr_entrance/diva_service.dart';
-import 'package:workmanager/workmanager.dart';
 
 import 'home.dart';
 
-@pragma(
-    'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+
+@pragma('vm:entry-point')
+void refreshCode() {
+  () async {
     DivaService divaService = DivaService();
     if (await divaService.hasCredentials()) {
       try {
         await divaService.retrieveEntranceCode();
-      } catch (e) {
-        return false;
-      }
+      } catch (e) {}
     }
-    return true;
-  });
+  }();
 }
 
-void main() {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // Workmanager().initialize(callbackDispatcher);
-  // Workmanager().registerPeriodicTask(
-  //     'qr-entrance-code-refresh', 'QR Entrance Code Refresh',
-  //     frequency: const Duration(hours: 6),
-  //     existingWorkPolicy: ExistingWorkPolicy.replace,
-  //     constraints: Constraints(
-  //         networkType: NetworkType.connected,
-  //         requiresBatteryNotLow: true,
-  //         requiresCharging: false,
-  //         requiresDeviceIdle: false,
-  //         requiresStorageNotLow: false),
-  //     backoffPolicy: BackoffPolicy.exponential,
-  //     backoffPolicyDelay: const Duration(minutes: 5));
+void main() async {
+  // Be sure to add this line if initialize() call happens before runApp()
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await AndroidAlarmManager.initialize();
+
   runApp(const EntranceApp());
+
+  final int refreshCodeId = 123;
+  await AndroidAlarmManager.periodic(
+      const Duration(hours: 24), refreshCodeId, refreshCode,
+      startAt: DateTime(2023, 1, 1, 5, 30));
 }

@@ -2,6 +2,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:network_info_plus/network_info_plus.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class DivaService {
   static const String usernameKey = 'USERNAME';
@@ -9,6 +11,7 @@ class DivaService {
   static const String tokenKey = 'TOKEN';
   static const String codeKey = 'CODE';
   static const String lastRefreshKey = 'LAST_REFRESH';
+  static const String d7AirlanName = '"d7-airlan"';
 
   final storage = const FlutterSecureStorage(
       aOptions: AndroidOptions(encryptedSharedPreferences: true));
@@ -49,9 +52,9 @@ class DivaService {
     final lastRefresh = DateTime.parse(lastRefreshString);
     final currentDate = DateTime.now();
     final today5am =
-        DateTime(currentDate.year, currentDate.month, currentDate.day, 5);
+    DateTime(currentDate.year, currentDate.month, currentDate.day, 5);
 
-    return today5am.isAfter(lastRefresh);
+    return lastRefresh.isAfter(today5am);
   }
 
   Future<bool> isLoggedIn() async {
@@ -60,7 +63,9 @@ class DivaService {
     if (token != null) {
       final jwt = JWT.decode(token);
       final exp = jwt.payload['exp'];
-      if (DateTime.now().millisecondsSinceEpoch < exp) {
+      if (DateTime
+          .now()
+          .millisecondsSinceEpoch < exp) {
         return true;
       }
     }
@@ -138,6 +143,18 @@ class DivaService {
     }
 
     await login(username, password);
+  }
+
+  get username async {
+    final username = await storage.read(key: usernameKey);
+
+    return username;
+  }
+
+  get password async {
+    final password = await storage.read(key: passwordKey);
+
+    return password;
   }
 }
 

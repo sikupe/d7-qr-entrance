@@ -1,5 +1,5 @@
 name: qr_entrance
-description: QR code for :Domus7 entrance
+description: :Domus7 App
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -39,7 +39,11 @@ dependencies:
   flutter_secure_storage: ^8.0.0
   http: ^0.13.5
   dart_jsonwebtoken: ^2.7.1
-  workmanager: ^0.5.1
+  network_info_plus: ^3.0.2
+  connectivity_plus: ^3.0.3
+  permission_handler: ^10.2.0
+  android_alarm_manager_plus: ^2.1.1
+  fluttertoast: ^8.2.1
 
 dev_dependencies:
   flutter_test:
