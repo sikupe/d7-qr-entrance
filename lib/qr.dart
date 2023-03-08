@@ -1,9 +1,12 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:qr_entrance/brightness_service.dart';
 import 'package:qr_entrance/diva_service.dart';
 import 'package:qr_entrance/wifi_service.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 
 class QRPage extends StatefulWidget {
   final void Function(bool) callback;
@@ -156,6 +159,34 @@ class _QRState extends State<QRPage> with WidgetsBindingObserver {
     callback.call(false);
   }
 
+  shareCode() async {
+    final qrPainter = QrPainter(
+        data: qrCode!,
+        version: QrVersions.auto,
+        errorCorrectionLevel: QrErrorCorrectLevel.H,
+        emptyColor: Colors.white,
+        gapless: true);
+    final image = await qrPainter.toImage(500);
+    final imageBytes = await image.toByteData(format: ImageByteFormat.png);
+
+    if (imageBytes != null) {
+      final file = XFile.fromData(
+          imageBytes.buffer
+              .asUint8List(imageBytes.offsetInBytes, imageBytes.lengthInBytes),
+          mimeType: 'image/png',
+          name: 'qr.png');
+      await Share.shareXFiles([file], text: 'QR Code for entering :Domus7');
+    } else {
+      Fluttertoast.showToast(
+        msg: "Could not save QR Code",
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,48 +195,34 @@ class _QRState extends State<QRPage> with WidgetsBindingObserver {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              margin: const EdgeInsets.all(15),
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: loadingCode
-                    ? Center(
-                        child: const CircularProgressIndicator(),
-                      )
-                    : qrCode != null
-                        ? QrImage(
-                            data: qrCode!,
-                          )
-                        : Center(
-                            child: Container(
-                              margin: EdgeInsets.all(15),
-                              child: Text(
-                                'An error occurred. Please try again later!\n(Are you connected to d7-airlan?)',
-                                style: TextStyle(color: Colors.red),
-                                textAlign: TextAlign.center,
+              margin: const EdgeInsets.all(10),
+              child: FractionallySizedBox(
+                widthFactor: 0.9,
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: loadingCode
+                      ? Center(
+                          child: const CircularProgressIndicator(),
+                        )
+                      : qrCode != null
+                          ? QrImage(
+                              data: qrCode!,
+                            )
+                          : Center(
+                              child: Container(
+                                margin: EdgeInsets.all(10),
+                                child: Text(
+                                  'An error occurred. Please try again later!\n(Are you connected to d7-airlan?)',
+                                  style: TextStyle(color: Colors.red),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
                             ),
-                          ),
+                ),
               ),
             ),
-            // Container(
-            //   margin: EdgeInsets.all(15),
-            //   child: Visibility(
-            //     child: Text(
-            //       'Not connected to d7-airlan!\nNo Refresh possible!',
-            //       style: TextStyle(
-            //         color: Colors.red,
-            //       ),
-            //       textAlign: TextAlign.center,
-            //     ),
-            //     maintainInteractivity: false,
-            //     maintainSize: true,
-            //     maintainAnimation: true,
-            //     maintainState: true,
-            //     visible: !connectedToD7Airlan,
-            //   ),
-            // ),
             Container(
-              margin: const EdgeInsets.all(15),
+              margin: const EdgeInsets.all(10),
               child: TextButton(
                 onPressed: connectedToD7Airlan ? refreshCode : null,
                 style: ButtonStyle(
@@ -227,7 +244,29 @@ class _QRState extends State<QRPage> with WidgetsBindingObserver {
               ),
             ),
             Container(
-                margin: const EdgeInsets.all(15),
+              margin: const EdgeInsets.all(10),
+              child: TextButton(
+                onPressed: qrCode != null ? shareCode : null,
+                style: ButtonStyle(
+                    minimumSize:
+                        MaterialStateProperty.all<Size>(const Size(250, 50)),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(35.0),
+                            side: BorderSide(
+                                color: qrCode != null
+                                    ? Colors.blue
+                                    : Colors.grey)))),
+                child: Text(
+                  qrCode != null
+                      ? 'Share QR Code'
+                      : 'No QR Code available for sharing',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            Container(
+                margin: const EdgeInsets.all(10),
                 child: TextButton(
                   onPressed: configuringWifi ? null : connectToWifi,
                   style: ButtonStyle(
@@ -245,7 +284,7 @@ class _QRState extends State<QRPage> with WidgetsBindingObserver {
                       : const Text('Configure d7-airlan'),
                 )),
             Container(
-              margin: const EdgeInsets.all(15),
+              margin: const EdgeInsets.all(10),
               child: TextButton(
                 onPressed: logout,
                 style: ButtonStyle(
