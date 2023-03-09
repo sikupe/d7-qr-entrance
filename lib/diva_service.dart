@@ -2,8 +2,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
-import 'package:network_info_plus/network_info_plus.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 
 class DivaService {
   static const String usernameKey = 'USERNAME';
