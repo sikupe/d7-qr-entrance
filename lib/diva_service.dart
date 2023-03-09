@@ -17,14 +17,13 @@ class DivaService {
       aOptions: AndroidOptions(encryptedSharedPreferences: true));
 
   setNewCredentials(String username, String password) async {
-    final token = await login(username, password);
+    login(username, password);
 
     await storage.write(key: usernameKey, value: username);
     await storage.write(key: passwordKey, value: password);
-    await storage.write(key: tokenKey, value: token);
   }
 
-  Future<String> login(String username, String password) async {
+  login(String username, String password) async {
     final response = await http.post(
         Uri.parse('https://start.d7.whka.de/api/public/sso/login'),
         headers: <String, String>{
@@ -40,7 +39,8 @@ class DivaService {
     final result = jsonDecode(response.body);
 
     final token = result['token'];
-    return token;
+
+    await storage.write(key: tokenKey, value: token);
   }
 
   Future<bool> hasValidCode() async {
@@ -52,7 +52,7 @@ class DivaService {
     final lastRefresh = DateTime.parse(lastRefreshString);
     final currentDate = DateTime.now();
     final today5am =
-    DateTime(currentDate.year, currentDate.month, currentDate.day, 5);
+        DateTime(currentDate.year, currentDate.month, currentDate.day, 5);
 
     return lastRefresh.isAfter(today5am);
   }
@@ -63,9 +63,7 @@ class DivaService {
     if (token != null) {
       final jwt = JWT.decode(token);
       final exp = jwt.payload['exp'];
-      if (DateTime
-          .now()
-          .millisecondsSinceEpoch < exp) {
+      if (DateTime.now().millisecondsSinceEpoch / 1000 < exp) {
         return true;
       }
     }
