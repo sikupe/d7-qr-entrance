@@ -69,7 +69,11 @@ class _HomePageState extends State<HomePage> {
       final hasCreds = await _divaService.hasCredentials();
       if (hasCreds) {
         final isLoggedIn = await _divaService.isLoggedIn();
-        if (!isLoggedIn) {
+        if (isLoggedIn) {
+          setState(() {
+            hasCredentials = true;
+          });
+        } else {
           try {
             await _divaService.loginBasedOnSavedCredentials();
             setState(() {
@@ -79,12 +83,6 @@ class _HomePageState extends State<HomePage> {
             await _divaService.logoutAndDeleteCredentials();
           }
         }
-      }
-      final hasValidCode = await _divaService.hasValidCode();
-      if (hasValidCode) {
-        setState(() {
-          hasCredentials = true;
-        });
       }
       setState(() {
         isInitialized = true;
